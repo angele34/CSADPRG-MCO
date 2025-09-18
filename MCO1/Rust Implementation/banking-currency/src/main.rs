@@ -59,6 +59,13 @@ fn go_back() -> char {
     }
 }
 
+fn display_account(account : &mut Account) {
+    println!("Deposit Amount");
+    println!("Account Name: {}", account.account_name);
+    println!("Current Balance: {}", account.current_balance);
+    println!("Currency: PHP");
+}
+
 fn main_menu(account : &mut Account) {
     println!();
     println!("[1] Register Account Name");
@@ -75,9 +82,9 @@ fn main_menu(account : &mut Account) {
     match ans {
         1 => register_account(account),
         2 => deposit_amount(account),
-        3 => withdraw_amount(),
-        4 => currency_exchange(),
-        5 => record_exchange_rate(),
+        3 => withdraw_amount(account),
+        4 => currency_exchange(account),
+        5 => record_exchange_rate(account),
         6 => show_interest_amount(),
         _ => unreachable!(),
     }
@@ -112,10 +119,7 @@ fn register_account(account : &mut Account) {
 
 fn deposit_amount(account : &mut Account) {
     println!();
-    println!("Deposit Amount");
-    println!("Account Name: {}", account.account_name);
-    println!("Current Balance: {}", account.current_balance);
-    println!("Currency: PHP");
+    display_account(account);
 
     println!();
     print!("Deposit Amount: ");
@@ -142,15 +146,76 @@ fn deposit_amount(account : &mut Account) {
     }
 }
 
-fn withdraw_amount() {
-    println!("Withdraw amount");
+fn withdraw_amount(account : &mut Account) {
+    println!();
+    println!("Withdraw Amount");
+    display_account(account);
+
+    println!();
+    print!("Withdraw Amount: ");
+    io::stdout().flush().unwrap();
+
+    let mut ans = String::new();
+    io::stdin()
+        .read_line(&mut ans)
+        .expect("Failed to read line");
+
+    let bal: f64 = ans.trim().parse().expect("Not a valid number");
+    account.current_balance -= bal;
+    println!("Updated Balance: {}", account.current_balance);
+
+    // Go back to main menu
+    println!();
+    println!("Back to Main Menu (Y/N)");
+    let ans = go_back();
+
+    if ans == 'y' {
+        main_menu(account);
+    } else { 
+        deposit_amount(account);
+    }
+
 }
 
-fn record_exchange_rate() {
-    println!("Record exchange rate");
+fn record_exchange_rate(account : &mut Account) {
+    println!();
+    println!("Record Exchange Rate");
+
+    println!("[1] Philippine Peso (PHP)");
+    println!("[2] United States Dollar (USD)");
+    println!("[3] Japanese Yen (JPY)");
+    println!("[4] British Pound Sterling (GBP)");
+    println!("[5] Euro (EUR)");
+    println!("[6] Chinese Yuan Renminni (CNY)");
+
+    println!("Select Foreign Currency: ");
+    let ans = validate();
+
+    let rate: f64 = match ans {
+        1 => 1.0,
+        2 => 57.09,
+        3 => 0.39,
+        4 => 77.68,
+        5 => 67.32,
+        6 => 8.04,
+        _ => unreachable!(),
+    };
+
+    println!("Exchange rate: {}", rate);
+
+    // Go back to main menu
+    println!();
+    println!("Back to Main Menu (Y/N)");
+    let ans = go_back();
+
+    if ans == 'y' {
+        main_menu(account);
+    } else { 
+        record_exchange_rate(account);
+    }
 }
 
-fn currency_exchange() {
+fn currency_exchange(account : &mut Account) {
     println!("Currency exchange");
 }
 
