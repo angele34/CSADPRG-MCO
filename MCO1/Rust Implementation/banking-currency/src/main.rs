@@ -41,7 +41,26 @@ fn validate() -> i32 {
     }
 }
 
-fn main_menu() {
+fn go_back() -> char {
+    loop {
+        let mut ans = String::new();
+        io::stdin()
+            .read_line(&mut ans)
+            .expect("Failed to read line");
+
+        let ch : char = ans.trim().chars().next().unwrap();
+        let ch = ch.to_ascii_lowercase();
+
+        if ch == 'y' || ch == 'n' {
+            return ch;
+        } else {
+            println!("Please enter Y or N:");
+        }
+    }
+}
+
+fn main_menu(account : &mut Account) {
+    println!();
     println!("[1] Register Account Name");
     println!("[2] Deposit Amount");
     println!("[3] Withdraw Amount");
@@ -54,8 +73,8 @@ fn main_menu() {
     let ans = validate();
 
     match ans {
-        1 => { register_account(); },
-        2 => deposit_amount(),
+        1 => register_account(account),
+        2 => deposit_amount(account),
         3 => withdraw_amount(),
         4 => currency_exchange(),
         5 => record_exchange_rate(),
@@ -64,7 +83,8 @@ fn main_menu() {
     }
 }
 
-fn register_account() -> Account {
+fn register_account(account : &mut Account) {
+    println!();
     println!("Register Account Name");
     // Ask user for their account name
     print!("Account Name: ");
@@ -77,18 +97,49 @@ fn register_account() -> Account {
 
     let name = ans.trim().to_string();
 
-    let account = Account {
-        account_name: name,
-        current_balance: 0.0,
-    };
+    account.account_name = name;
 
     // Go back to main menu
+    println!();
     println!("Back to Main Menu (Y/N)");
-    account
+    let ans = go_back();
+    if ans == 'y' {
+        main_menu(account);
+    } else {
+        register_account(account);
+    }
 }
 
-fn deposit_amount() {
-    println!("Deposit amount");
+fn deposit_amount(account : &mut Account) {
+    println!();
+    println!("Deposit Amount");
+    println!("Account Name: {}", account.account_name);
+    println!("Current Balance: {}", account.current_balance);
+    println!("Currency: PHP");
+
+    println!();
+    print!("Deposit Amount: ");
+    io::stdout().flush().unwrap();
+
+    let mut ans = String::new();
+    io::stdin()
+        .read_line(&mut ans)
+        .expect("Failed to read line");
+
+    let bal: f64 = ans.trim().parse().expect("Not a valid number");
+    account.current_balance += bal;
+    println!("Updated Balance: {}", account.current_balance);
+
+    // Go back to main menu
+    println!();
+    println!("Back to Main Menu (Y/N)");
+    let ans = go_back();
+
+    if ans == 'y' {
+        main_menu(account);
+    } else { 
+        deposit_amount(account);
+    }
 }
 
 fn withdraw_amount() {
@@ -109,5 +160,9 @@ fn show_interest_amount() {
 
 fn main() {
     // Display the main menu
-    main_menu();
+    let mut account = Account {
+        account_name: "".to_string(),
+        current_balance: 0.0,
+    };
+    main_menu(&mut account);
 }
