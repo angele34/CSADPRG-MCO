@@ -177,21 +177,17 @@ fn withdraw_amount(account : &mut Account) {
 
 }
 
-fn record_exchange_rate(account : &mut Account) {
-    println!();
-    println!("Record Exchange Rate");
-
+fn display_currency() {
     println!("[1] Philippine Peso (PHP)");
     println!("[2] United States Dollar (USD)");
     println!("[3] Japanese Yen (JPY)");
     println!("[4] British Pound Sterling (GBP)");
     println!("[5] Euro (EUR)");
     println!("[6] Chinese Yuan Renminni (CNY)");
+}
 
-    println!("Select Foreign Currency: ");
-    let ans = validate();
-
-    let rate: f64 = match ans {
+fn currency_rates(ans : i32) -> f64 {
+    match ans {
         1 => 1.0,
         2 => 57.09,
         3 => 0.39,
@@ -199,8 +195,19 @@ fn record_exchange_rate(account : &mut Account) {
         5 => 67.32,
         6 => 8.04,
         _ => unreachable!(),
-    };
+    }
+}
 
+fn record_exchange_rate(account : &mut Account) {
+    println!();
+    println!("Record Exchange Rate");
+
+    display_currency();
+
+    println!("Select Foreign Currency: ");
+    let ans = validate();
+
+    let rate = currency_rates(ans);
     println!("Exchange rate: {}", rate);
 
     // Go back to main menu
@@ -216,11 +223,51 @@ fn record_exchange_rate(account : &mut Account) {
 }
 
 fn currency_exchange(account : &mut Account) {
+    println!();
     println!("Currency exchange");
+    println!("Source Currency Option:");
+    display_currency();
+
+    print!("Source Currency: ");
+    io::stdout().flush().unwrap();
+    let ans_src = validate();
+    let rate_src : f64 = currency_rates(ans_src);
+
+    print!("Source Amount: ");
+    io::stdout().flush().unwrap();
+
+    let mut amt = String::new();
+    io::stdin()
+        .read_line(&mut amt)
+        .expect("Failed to read line");
+
+    let src_amount: f64 = amt.trim().parse().expect("Not a valid number");
+
+    println!();
+    println!("Exchanged Currency Options:");
+    display_currency();
+    print!("Exchange Currency: ");
+    let target_ans = validate();
+    let target_rate : f64 = currency_rates(target_ans);
+
+    let exchanged_amount : f64 = (rate_src * src_amount) / target_rate;
+    println!("Exchange Amount: {:.2}", exchanged_amount);
+
+    // Prompt user to convert again
+    println!();
+    println!("Convert another currency? (Y/N)");
+    let ans = go_back();
+
+    if ans == 'y' {
+        main_menu(account);
+    } else { 
+        currency_exchange(account);
+    }
 }
 
 fn show_interest_amount() {
     println!("Show interest amount");
+    
 }
 
 fn main() {
