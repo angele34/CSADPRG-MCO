@@ -60,7 +60,6 @@ fn go_back() -> char {
 }
 
 fn display_account(account : &mut Account) {
-    println!("Deposit Amount");
     println!("Account Name: {}", account.account_name);
     println!("Current Balance: {}", account.current_balance);
     println!("Currency: PHP");
@@ -85,7 +84,7 @@ fn main_menu(account : &mut Account) {
         3 => withdraw_amount(account),
         4 => currency_exchange(account),
         5 => record_exchange_rate(account),
-        6 => show_interest_amount(),
+        6 => show_interest_amount(account),
         _ => unreachable!(),
     }
 }
@@ -233,6 +232,7 @@ fn currency_exchange(account : &mut Account) {
     let ans_src = validate();
     let rate_src : f64 = currency_rates(ans_src);
 
+    // NOTE: not sure if this is supposed to be an input given by the user
     print!("Source Amount: ");
     io::stdout().flush().unwrap();
 
@@ -265,9 +265,46 @@ fn currency_exchange(account : &mut Account) {
     }
 }
 
-fn show_interest_amount() {
-    println!("Show interest amount");
-    
+fn show_interest_amount(account : &mut Account) {
+    println!();
+    println!("Show Interest Amount");
+    display_account(account);
+    // fixed interest rate annually
+    println!("Interest Rate: 5%");
+
+    // This is supposed to be an input accdg. to details
+    println!();
+    print!("Total Number of Days: ");
+    io::stdout().flush().unwrap();
+    let mut days_input = String::new();
+    io::stdin()
+        .read_line(&mut days_input)
+        .expect("Failed to read line");
+
+    let days : usize = days_input.trim().parse().expect("Not a valid number");
+
+    // Daily interest = End of day bal x Annual interest rate / 365
+    // Get daily interest
+    let daily_interest : f64 = 5.0 / 365.0;
+    let rounded = ((daily_interest * 1000.0).round() / 1000.0) * 10.0;
+
+    println!();
+    println!("Day | Interest | Balance");
+    for i in 1..=days {
+        let interest = account.current_balance + rounded * (i as f64);
+        println!("{} | {} | {:.2}", i, rounded, interest);
+    }
+
+    // Go back to main menu
+    println!();
+    println!("Back to Main Menu (Y/N)");
+    let ans = go_back();
+
+    if ans == 'y' {
+        main_menu(account);
+    } else { 
+        show_interest_amount(account);
+    }
 }
 
 fn main() {
