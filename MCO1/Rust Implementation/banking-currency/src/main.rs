@@ -259,9 +259,9 @@ fn currency_exchange(account : &mut Account) {
     let ans = go_back();
 
     if ans == 'y' {
-        main_menu(account);
-    } else { 
         currency_exchange(account);
+    } else { 
+        main_menu(account);
     }
 }
 
